@@ -1,0 +1,278 @@
+
+
+/* MAIN */
+
+.container {
+    padding-top: 182px;
+    min-height: calc(100vh - 117.78px);
+    
+}
+
+/* CARRITO DE COMPRA */
+
+.container {
+    padding-left: 30px;
+    padding-right: 30px;
+    
+}
+
+.producto_info {
+    display: grid;
+    grid-template-columns: 40% 35% 25%;
+    padding: 10px;
+    margin-bottom: 50px;
+}
+
+.img_producto {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.img_producto img {
+    width: 80%;
+}
+
+.info_producto {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-right: 25px;
+    
+}
+
+.info_producto_1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    
+    height: 100%;
+}
+
+.info_producto h1 {
+    color: rgb(73, 73, 73);
+    font-size: 140%;
+}
+
+.nombre_producto .por {
+    color: rgb(134, 134, 134);
+}
+
+.marca {
+    color: rgb(9, 95, 253);
+}
+
+.info_producto_1_precio {
+    font-size: 150%;
+    color: rgb(73, 73, 73);
+}
+
+.info_producto_2 {
+    border: 1px solid rgb(173, 173, 173);
+    padding: 10px;
+}
+
+.info_producto_2 h5 {
+    margin-bottom: 10px;
+    color: rgb(37, 37, 37);
+}
+
+.botones_producto {
+    display: flex;
+    
+    
+}
+
+.botones_producto form{
+    display: flex;
+    flex-direction: column;
+    
+    height: 100%;
+    width: 100%;
+    padding-left: 30px;
+    justify-content: center;
+}
+
+.botones_producto button {
+    padding: 20px;
+    width: 80%;
+    margin-bottom: 10px;
+}
+
+.cantidad {
+    border: 1px solid rgb(214, 214, 214);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    margin-bottom: 10px;
+}
+
+.cantidad span {
+    color: rgb(139, 139, 139);
+    margin-bottom: 5px;
+}
+
+.cantidad select {
+    border: none;
+    color: rgb(109, 109, 109);
+    font-size: 105%;
+}
+
+.boton_añadir {
+    background-color: #fff;
+    color: rgb(9, 95, 253);
+    font-size: 25px;
+    border: 1px solid rgb(214, 214, 214);
+    font-weight: bold;
+}
+
+.boton_comprar {
+    background-color: rgb(9, 95, 253);
+    color: #fff;
+    font-size: 25px;
+    border: none;
+    font-weight: bold;
+}
+
+/* FOOTER */
+
+footer {
+    width: 100%;
+    
+    padding: 50px;
+    background-color: rgb(212, 219, 224);
+    text-align: center;
+    color: rgb(97, 100, 102);
+    
+    
+}
+
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1025px) {
+
+    .header_boton {
+        display: flex;
+    }
+
+    /*MENU DESPLEGABLE*/
+
+    .header_2 {
+        background-color: #fff;
+        top: 0;
+        left: 0;
+        position: fixed;
+        height: 100%;
+        width: 50%;
+        transform: translateX(-150%);
+        transition: 0.3s;
+    }
+
+    .header_2.active {
+        transform: translateX(0);
+    }
+
+    .header_menu {
+        display: flex;
+        margin-top: 20px;
+    }
+    
+    .header_menu ul {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .header_menu ul li {
+        margin: 10px 0 20px 35px;
+    }
+
+    .header_menu ul li a{
+        color: rgb(104, 106, 109);
+    }
+
+    .header_menu a {
+        color: #000;
+    }
+
+    .boton_cerrar {
+        display: block;
+    }
+
+    .boton_cerrar_menu {
+        margin-left: 80%;
+        font-size: 35px;
+        background-color: #fff;
+        border: none;
+        color: rgb(58, 59, 61);
+    }
+}
+
+@media (max-width: 670px) {
+    .header_buscar {
+        display: none;
+    }
+
+    .header_buscador_responsive {
+        display: flex;
+    }
+
+    .header_logo img {
+        margin-top: 20px;
+        max-height: 80px;
+    }
+
+    .header_carrito {
+        width: 100px;
+    }
+
+    .header_buscar_responsive_des {
+        display: block;
+        background-color: #fff;
+        bottom: 0;
+        left: 0;
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        transform: translateY(-150%);
+        transition: 0.3s;
+    }
+
+    .header_buscar_responsive_des input{
+        width: 100%;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        padding: 15px;
+        border-bottom: 1px solid rgb(218, 208, 208);
+        outline: none;
+    }
+
+    .header_buscar_responsive_des input::placeholder{
+        color: rgb(173, 168, 168);
+        font-size: 15px;
+    }
+
+    .header_buscar_responsive_des button {
+        position: fixed;
+        top: 0;
+        right: 0;
+        margin-top: 13px;
+        margin-right: 10px;
+        color: rgb(70, 158, 209);
+        font-weight: bold;
+        font-size: 15px;
+        border: none;
+        background-color: #fff;
+        
+    }
+
+    .header_buscar_responsive_des.active {
+        transform: translateY(0);
+    }
+    
+}

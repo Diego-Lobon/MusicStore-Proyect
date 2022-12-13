@@ -1,0 +1,277 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.gg-search {
+    color: #fff;
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* HEADER */
+
+.header {
+    width: 100%;
+    position: fixed;
+    background: #000;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    top: 0;
+}
+
+.header_1 {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+/*Menu responsive*/
+
+.header_boton {
+    max-height: 100px;
+    width: 70px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.header_boton button {
+    padding: 10px;
+    width: 45px;
+    height: 50%;
+    background-color: #000;
+    border: none;
+}
+
+.header_boton button .linea {
+    background: #fff;
+    height: 2px;
+    width: 100%;
+    margin: 5px 0;
+}
+
+/*Menu responsive*/
+
+
+.header_buscador_responsive {
+    max-height: 100px;
+    width: 70px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.header_buscador_responsive button {
+    padding: 10px;
+    background-color: #000;
+    border: none;
+}
+
+.header_buscar_responsive_des {
+    display: none;
+}
+
+.header_logo img {
+    margin-top: 10px;
+    max-height: 80px;
+}
+
+.header_logo {
+    margin: auto;
+    
+    height: 100px;
+}
+
+.buscador_header_buscar {
+    outline: none;
+}
+
+.header_buscar {
+    display: flex;
+    width: 75%;
+    align-items: center;
+    /*flex-direction: column;*/
+    
+}
+
+.resultados_buscador {
+    background-color: #fff;
+    
+    top: 0;
+    bottom: 0;
+    position: fixed;
+    margin-top: 75px;
+    width: 74.8%;
+    height: fit-content;
+
+}
+
+
+.informacion_buscador {
+    display: flex;
+    width: 100%;
+    background-color: #fff;
+    border: none;
+}
+
+.resultado_1 img {
+    margin: 10px 0;
+    width: 60px;
+
+}
+
+.resultado_1 {
+    
+    width: 120px;
+}
+
+.resultado_2 {
+    display: flex;
+    flex-direction: column;
+    
+    margin-top: 20px;
+}
+
+.resultado_2 .titulo_buscador {
+    color: rgb(136, 134, 134);
+    margin-bottom: 3px;
+    font-size: 20px;
+    text-align: left;
+}
+
+.resultado_2 .precio_buscador {
+    color: rgb(16, 128, 233);
+    font-size: 20px;
+    text-align: left;
+}
+
+.resultado_nohay {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.error_1 {
+    margin-bottom: 10px;
+    color: rgb(68, 64, 64);
+    font-size: 20px;
+}
+
+.error_2 {
+    color: rgb(136, 134, 134);
+    font-size: 20px;
+}
+
+.header_buscar form {
+    display: flex;
+    width: 100%;
+}
+
+.header_buscar .buscador_header_buscar{
+    width: 94%;
+    height: 50px;
+    border-bottom-left-radius: 8px;
+    border-top-left-radius: 8px;
+    outline: none;
+}
+
+.header_buscar .button_header {
+    
+    width: 65px;
+    height: 50px;
+    border-bottom-right-radius: 8px;
+    border-top-right-radius: 8px;
+    border-style: none;
+    background: rgb(16, 128, 233);
+    
+}
+
+.buscador_header_buscar_activate {
+    width: 94%;
+    height: 50px;
+    
+    border-top-left-radius: 8px;
+    outline: none;
+}
+
+.button_header_activate {
+    width: 65px;
+    height: 50px;
+   
+    border-top-right-radius: 8px;
+    border-style: none;
+    background: rgb(16, 128, 233);
+}
+
+.header_buscar i {
+    margin: auto;
+}
+
+.header_carrito {
+    display: flex;
+    width: 170px;
+    
+}
+
+.header_carrito a {
+    
+    background-color: #fff;
+    margin: auto;
+    height: 70px;
+    width: 70px;   
+    border-radius: 50%;
+}
+
+.header_carrito img {
+    height: 50px;
+    margin: 10px;
+}
+
+.header_2 {
+    margin-bottom: 20px;
+    
+}
+
+.header_2.active {
+    transform: translateX(0);
+}
+
+.boton_cerrar {
+    display: none;
+}
+
+.header_menu {
+    display: flex;
+}
+
+.header_menu ul{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.header_menu a {
+    color: #fff;
+    font-weight: bold;
+}
+
+.header_menu .nombre_header,
+.header_menu .separador_header{
+    color: #fff;
+    font-weight: bold;
+}
