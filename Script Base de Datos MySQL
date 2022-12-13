@@ -1,0 +1,516 @@
+-- phpMyAdmin SQL Dump
+-- version 5.1.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost
+-- Generation Time: Dec 13, 2022 at 04:46 PM
+-- Server version: 10.4.19-MariaDB
+-- PHP Version: 8.0.7
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `musicstore`
+--
+
+DELIMITER $$
+--
+-- Procedures
+--
+CREATE DEFINER=`` PROCEDURE `Actualizar_Usuario_Informacion` (IN `nombreN` VARCHAR(150), IN `apellidoN` VARCHAR(150), IN `direccionN` VARCHAR(150), IN `apartamentoN` VARCHAR(150), IN `distritoN` VARCHAR(150), IN `regionN` VARCHAR(150), IN `celularN` INT, IN `correoN` VARCHAR(150), IN `dniN` VARCHAR(150), IN `ipU` VARCHAR(150))  begin
+	UPDATE informacionPago SET nombre = nombreN WHERE ip = ipU;
+    UPDATE informacionPago SET apellido = apellidoN WHERE ip = ipU;
+    UPDATE informacionPago SET direccion = direccionN WHERE ip = ipU;
+    UPDATE informacionPago SET apartamento = apartamentoN WHERE ip = ipU;
+    UPDATE informacionPago SET distrito = distritoN WHERE ip = ipU;
+    UPDATE informacionPago SET region = regionN WHERE ip = ipU;
+    UPDATE informacionPago SET celular = celularN WHERE ip = ipU;
+    UPDATE informacionPago SET correo = correoN WHERE ip = ipU;
+    UPDATE informacionPago SET dni = dniN WHERE ip = ipU;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Actualizar_Usuario_Metodo` (IN `metodoN` VARCHAR(150), IN `ipU` VARCHAR(150))  begin
+	UPDATE informacionPago SET metodo = metodoN WHERE ip = ipU;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Buscador_Producto` (`producto` VARCHAR(1000))  begin
+	SELECT * FROM productos WHERE nombre LIKE CONCAT('%',producto,'%');
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Buscar_Carrito` (IN `nombreProducto` VARCHAR(150), IN `ipUsuario` VARCHAR(150))  begin
+	DECLARE idUsuarioN, idProductoN, cant INT;
+	SET idUsuarioN = (SELECT idUsuario FROM usuarios WHERE ip = ipUsuario);
+    SET idProductoN = (SELECT idProducto FROM productos WHERE nombre = nombreProducto);
+	SELECT * from carrito_de_compras WHERE idUsuario = idUsuarioN AND idProducto = idProductoN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Buscar_Producto` (`nombreProducto` VARCHAR(100))  begin
+	SELECT * FROM productos WHERE nombreProducto = nombre;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Buscar_Producto_ID` (`id` VARCHAR(100))  begin
+	SELECT * FROM productos WHERE idProducto = id;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Buscar_Usuario` (IN `ipUsuario` VARCHAR(150))  begin
+	SELECT * FROM usuarios WHERE ipUsuario = ip;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Buscar_Usuario_Informacion` (`ipUsuario` VARCHAR(150))  begin
+	SELECT * FROM informacionPago WHERE ip = ipUsuario;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Cantidad_Registros_Carrito` ()  begin
+	SELECT count(*) as cantidad FROM ventas;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Crear_Usuario` (IN `nombre` VARCHAR(45), IN `apellido` VARCHAR(45), IN `correo` VARCHAR(45), IN `contraseña` VARCHAR(45), IN `tipo` VARCHAR(45), IN `activo` VARCHAR(60), IN `ip` VARCHAR(150))  begin
+	INSERT INTO usuarios(nombre, apellido, correo, contraseña, tipo, activo, ip)
+    VALUES(nombre, apellido, correo, contraseña, tipo, activo, ip);
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Crear_Usuario_Informacion` (IN `nombre` VARCHAR(150), IN `apellido` VARCHAR(150), IN `direccion` VARCHAR(150), IN `apartamento` VARCHAR(150), IN `distrito` VARCHAR(150), IN `region` VARCHAR(150), IN `celular` VARCHAR(150), IN `correo` VARCHAR(150), IN `metodo` VARCHAR(150), IN `dni` VARCHAR(150), IN `ip` VARCHAR(150))  begin
+	INSERT INTO informacionPago(nombre, apellido, direccion, apartamento, distrito, region, celular, correo, ip, metodo, dni)
+    VALUES(nombre, apellido, direccion, apartamento, distrito, region, celular, correo, ip, metodo, dni);
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Eliminar_Producto` (`idCarritoE` INT)  begin
+	DELETE FROM carrito_de_compras WHERE idCarrito = idCarritoE;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Historial_Pedido_Usuario` (`ipUsuario` VARCHAR(150))  begin
+	DECLARE idUsuarioN INT;
+	SET idUsuarioN = (SELECT idUsuario FROM usuarios WHERE ip = ipUsuario);
+	SELECT P.nombre, V.CantidadProducto, V.total, V.estadoEntrega, V.fecha FROM ventas V
+    inner join productos P on P.idProducto = V.idProducto WHERE V.idUsuario = idUsuarioN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Insertar_Producto_Carrito` (IN `nombreProducto` VARCHAR(150), IN `ipUsuario` VARCHAR(150), IN `cantidad` INT, IN `totalPrecio` DOUBLE)  begin 
+	DECLARE idUsuarioN, idProductoN, cant INT;
+	SET idUsuarioN = (SELECT idUsuario FROM usuarios WHERE ip = ipUsuario);
+    SET idProductoN = (SELECT idProducto FROM productos WHERE nombre = nombreProducto);
+    SET cant = (SELECT count(*) from carrito_de_compras WHERE idUsuario = idUsuarioN AND idProducto = idProductoN);
+    IF (cant = 0) THEN
+		INSERT INTO carrito_de_compras(idUsuario, idProducto, cantidadProducto, total)
+		VALUES(idUsuarioN, idProductoN, cantidad, totalPrecio);
+	ELSE
+		UPDATE carrito_de_compras SET cantidadProducto = cantidad WHERE idUsuario = idUsuarioN AND idProducto = idProductoN;
+        UPDATE carrito_de_compras SET total = totalPrecio WHERE idUsuario = idUsuarioN AND idProducto = idProductoN;
+	END IF;	
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Limpiar_Carrito_Usuario` (IN `ipUsuario` VARCHAR(150))  begin
+	DECLARE idUsuarioN INT;
+	SET idUsuarioN = (SELECT idUsuario FROM usuarios WHERE ip = ipUsuario);
+	delete from carrito_de_compras where idUsuario=idUsuarioN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Limpiar_Informacion_Usuario` (IN `ipUsuario` VARCHAR(150))  begin
+	delete from informacionPago where ip=ipUsuario;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Carrito` ()  begin
+	SELECT * FROM carrito_de_compras;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Carrito_Productos` (IN `ipUsuario` VARCHAR(150))  begin
+	DECLARE idUsuarioN INT;
+	SET idUsuarioN = (SELECT idUsuario FROM usuarios WHERE ip = ipUsuario);
+	SELECT  C.idCarrito , C.idUsuario ,C.idProducto, P.nombre, P.descripcion, P.precio, P.marca, P.modelo, P.categoria, P.tipo, P.cantidad, C.cantidadProducto, C.total FROM carrito_de_compras C
+    inner join productos P on P.idProducto = C.idProducto WHERE idUsuario = idUsuarioN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Marcas` (`categoriaN` VARCHAR(150))  begin
+	SELECT distinct marca FROM productos WHERE categoria = categoriaN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Marca_Producto` (`categoriaN` VARCHAR(150), `marcaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND marca = marcaN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Marca_Tipo_Producto` (`categoriaN` VARCHAR(150), `tipoN` VARCHAR(150), `marcaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND marca = marcaN AND tipo = tipoN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Modelos` (`categoriaN` VARCHAR(150))  begin
+	SELECT distinct modelo FROM productos WHERE categoria = categoriaN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Por_Categoria` (`categoriaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Productos` ()  begin
+	SELECT * FROM productos;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Ascendente` (`categoriaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN ORDER BY precio ASC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Ascendente_Marca` (`categoriaN` VARCHAR(150), `marcaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND marca = marcaN ORDER BY precio ASC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Ascendente_Tipo` (`categoriaN` VARCHAR(150), `tipoN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND tipo = tipoN ORDER BY precio ASC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Ascendente_Tipo_Marca` (`categoriaN` VARCHAR(150), `tipoN` VARCHAR(150), `marcaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND tipo = tipoN AND marca = marcaN ORDER BY precio ASC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Descendente` (`categoriaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN ORDER BY precio DESC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Descendente_Marca` (`categoriaN` VARCHAR(150), `marcaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND marca = marcaN ORDER BY precio DESC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Descendente_Tipo` (`categoriaN` VARCHAR(150), `tipoN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND tipo = tipoN ORDER BY precio DESC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Producto_Orden_Descendente_Tipo_Marca` (`categoriaN` VARCHAR(150), `tipoN` VARCHAR(150), `marcaN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND tipo = tipoN AND marca = marcaN ORDER BY precio DESC;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Tipos` (`categoriaN` VARCHAR(150))  begin
+	SELECT distinct tipo FROM productos WHERE categoria = categoriaN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Tipo_Producto` (`categoriaN` VARCHAR(150), `tipoN` VARCHAR(150))  begin
+	SELECT * FROM productos WHERE categoria = categoriaN AND tipo = tipoN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Listar_Usuarios` ()  begin
+	SELECT * FROM usuarios;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Registrar_Usuario` (IN `nombre` VARCHAR(150), IN `apellido` VARCHAR(150), IN `correo` VARCHAR(150), IN `contraseña` VARCHAR(150))  begin
+	INSERT INTO usuarios (nombre, apellido, correo, contraseña, tipo, activo, ip)
+    VALUES (nombre, apellido, correo, contraseña, "Registrado", "No Activo", nombre);
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Registrar_Usuario_N` (IN `nombre` VARCHAR(150), IN `apellido` VARCHAR(150), IN `correo` VARCHAR(150), IN `contraseña` VARCHAR(150))  begin
+	DECLARE idUsuarioN INT;
+    SET idUsuarioN = (SELECT last_insert_id() FROM usuarios limit 1);
+	INSERT INTO usuarios (nombre, apellido, correo, contraseña, tipo, activo, ip)
+    VALUES (nombre, apellido, correo, contraseña, "Registrado", "No Activo", idUsuarioN+1);
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Registrar_Venta` (`idVentaMP` INT, `idUsuario` INT, `estado` VARCHAR(100), `tipoPago` VARCHAR(100), `idOrdenComercial` INT, `idProducto` INT, `CantidadProducto` INT, `total` INT, `nombre` VARCHAR(200), `apellido` VARCHAR(200), `direccion` VARCHAR(200), `apartamento` VARCHAR(200), `distrito` VARCHAR(200), `region` VARCHAR(200), `celular` VARCHAR(200), `correo` VARCHAR(200), `ip` VARCHAR(200), `metodo` VARCHAR(200), `dni` VARCHAR(200))  begin
+	INSERT INTO ventas (idVentaMP, idUsuario, estado, tipoPago, idOrdenComercial, idProducto, CantidadProducto, total, nombre, apellido, direccion, apartamento, distrito, region, celular, correo, ip, metodo, dni, estadoEntrega, fecha)
+    VALUES (idVentaMP, idUsuario, estado, tipoPago, idOrdenComercial, idProducto, CantidadProducto, total, nombre, apellido, direccion, apartamento, distrito, region, celular, correo, ip, metodo, dni, 'En Proceso', current_timestamp());
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Sub_Total_Carrito` (IN `ipUsuario` VARCHAR(150))  begin
+	DECLARE idUsuarioN INT;
+	SET idUsuarioN = (SELECT idUsuario FROM usuarios WHERE ip = ipUsuario);
+	SELECT SUM(total) as subTotal FROM carrito_de_compras WHERE idUsuario = idUsuarioN;
+end$$
+
+CREATE DEFINER=`` PROCEDURE `Validar_Usuario` (IN `correoE` VARCHAR(150), IN `contraseñaE` VARCHAR(150))  begin
+	SELECT * FROM usuarios WHERE correo = correoE AND contraseña = contraseñaE;
+end$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `carrito_de_compras`
+--
+
+CREATE TABLE `carrito_de_compras` (
+  `idCarrito` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idProducto` int(11) NOT NULL,
+  `cantidadProducto` int(11) NOT NULL,
+  `total` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `informacionpago`
+--
+
+CREATE TABLE `informacionpago` (
+  `idInformacionPago` int(11) NOT NULL,
+  `nombre` varchar(150) NOT NULL,
+  `apellido` varchar(150) NOT NULL,
+  `direccion` varchar(150) NOT NULL,
+  `apartamento` varchar(150) NOT NULL,
+  `distrito` varchar(150) NOT NULL,
+  `region` varchar(150) NOT NULL,
+  `celular` varchar(150) NOT NULL,
+  `correo` varchar(150) NOT NULL,
+  `ip` varchar(150) NOT NULL,
+  `metodo` varchar(150) NOT NULL,
+  `dni` varchar(150) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `informacionpago`
+--
+
+INSERT INTO `informacionpago` (`idInformacionPago`, `nombre`, `apellido`, `direccion`, `apartamento`, `distrito`, `region`, `celular`, `correo`, `ip`, `metodo`, `dni`) VALUES
+(47, '', '', '', '', '', '', '', '', '::1', '', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pedidostodos`
+--
+
+CREATE TABLE `pedidostodos` (
+  `idPedidosTodos` int(11) NOT NULL,
+  `idCarrito` int(11) DEFAULT NULL,
+  `celular` varchar(150) DEFAULT NULL,
+  `direccion` varchar(150) DEFAULT NULL,
+  `apartamentoLocalidad` varchar(150) DEFAULT NULL,
+  `distrito` varchar(150) DEFAULT NULL,
+  `region` varchar(150) DEFAULT NULL,
+  `metodo` varchar(150) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `productos`
+--
+
+CREATE TABLE `productos` (
+  `idProducto` int(11) NOT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `descripcion` varchar(1000) NOT NULL,
+  `precio` double NOT NULL,
+  `marca` varchar(45) NOT NULL,
+  `modelo` varchar(45) NOT NULL,
+  `categoria` varchar(50) NOT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `cantidad` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `productos`
+--
+
+INSERT INTO `productos` (`idProducto`, `nombre`, `descripcion`, `precio`, `marca`, `modelo`, `categoria`, `tipo`, `cantidad`) VALUES
+(1, 'Guitarra-Acustica-Yamaha-C-40', 'La Yamaha C-40 es una excelente guitarra para estudiantes y principiantes, \r\nsin embargo su excelente construcción y sonido la hace una guitarra súper versátil también para intermedios y avanzados. \r\nEs definitivamente la mejor guitarra acústica del mercado en su rango de precio.\r\nLos elementos de los aros y fondo son de meranti, parecido al caoba. El diapasón y el puente son de palidandro, \r\nlo que garantiza no solo un muy buen sonido sino además una facilidad excepcional para tocar. Las clavijas, con un \r\nacabado preciso y cromadas, garantizan una buen afinación.', 510, 'Yamaha', 'C-40', 'Guitarras y Bajos', 'Guitarra Acustica', 5),
+(2, 'Guitarra Acústica Fender FC-1 Classical - Natural', 'La Fender FC-1 es un guitarra clásica asequible y de gran sonido que no \r\ncompromete el tono, la sensación o el valor. Las características incluyen una tapa de abeto laminado con arriostramiento de abanico, \r\nparte posterior y laterales de tilo laminado, forma de cuerpo clásico tradicional, cuello ancho con cómodo perfil en forma de \"U\" y forma \r\nde cabezal clásico Fender, radio de diapasón plano y más. Cuerpo clásico con cuerdas de nylon Tapa de abeto laminado con tilo Fondo y aldos \r\nde tilo laminado Diapasón: Núez Radio del diapasón: Plano Material del cuello: caoba Forma del cuello: forma de \"U\" 19 trastes \r\nPuente: Nogal Clavijeros: 3 en línea con botones blancos perlados Color Natural', 455, 'Fender', 'FC-1', 'Guitarras y Bajos', 'Guitarra Acustica', 4),
+(1002, 'Amplificador para Guitarra Eléctrica Champion 20', 'Fácil de usar y lo suficientemente versátil para cualquier estilo de música, el Champion 20 de 20 vatios es la opción ideal como primer \r\namplificador. Equipado con controles sencillos, efectos y simulador de amplificadores integrados, todo ello hace que sea fácil de utilizar \r\nen todos los estilos de rock, blues, metal, country, jazz entre otros.', 589, 'Fender', 'Champion 20', 'Guitarras y Bajos', 'Amplificador de Guitarra Electrica', 10),
+(1003, 'Bajo Eléctrico Squier Affinity Series Jazz Bass con mástil de maple - 3-Color Sunburst', 'Una magnífica puerta de entrada a la tradicional familia Fender, el Squier Affinity Series Jazz Bass ofrece un diseño legendario y un tono \r\npor excelencia para el aspirante a bajista de hoy. Este J Bass cuenta con varios refinamientos fáciles de usar, como un cuerpo delgado y \r\nliviano, un perfil de mástil en forma de \"C\" delgado y cómodo y máquinas de afinación de engranajes abiertos de estilo antiguo para una \r\nafinación suave y precisa. Cargado con dos pastillas Squier de bobina simple J Bass para una amplia variedad de tonos, este modelo está \r\nlisto para ayudar a sentar las bases para cualquier músico en cualquier etapa.', 1520, 'Squier', 'Squier Affinity Series Jazz Bass', 'Guitarras y Bajos', 'Bajo Electrico', 4),
+(1004, 'Guitarra Eléctrica Fender Player Stratocaster HSS con mástil de Pau Ferro -3 Tone Sunburst', 'La Fender Player Series Stratocaster junta lo clásico con lo moderno, con un mástil de arce de 22 trastes de acción rápida, vibrantes \r\nacabados de inspiración vintage y dos pastillas con un humbucker Player Series Alnico 5 Strat que brindan todo el legendario ataque y brillo \r\nque esperas de una Stratocaster .', 4269, 'Fender', 'Player Stratocaster HSS', 'Guitarras y Bajos', 'Guitarra Electrica', 2),
+(1005, 'Guitarra Electroacústica Fender FA-125CE Dreadnought con mástil de nogal - Sunburst', 'La FA-125CE de corte único combina el tono y el estilo de Fender con nuestra electrónica FE-A2 para una guitarra que fue hecha para subir \r\nal escenario. La construcción laminada de calidad con un clavijero Fender 3+3 moderno y un puente Viking crean un instrumento de gran sonido \r\nque es fácil de tocar. Los principiantes y los músicos en desarrollo apreciarán el mástil de nato que le da a la guitarra un tono vivo y una \r\nsensación suave y fácil de tocar.', 899, 'Fender', 'FA-125CE', 'Guitarras y Bajos', 'Guitarra Electroacustica', 8),
+(1006, 'Piano Digital NUX WK-400 Negro', 'El WK-400 viene con todas las funciones esenciales que debería tener un piano digital promedio. Tonos alternativos, grabación, función \r\nde metrónomo, canciones de demostración clásicas, teclado dual, efectos integrados, pero aún más con el auténtico teclado táctil a un precio \r\nrazonable.', 1899, 'NUX', 'WK-400', 'Pianos y Teclados', 'Piano Digital', 3),
+(1007, 'Piano Digital Pearl River F-12 (Rosewood) con banqueta', 'El Pearl River F12 es un piano digital un teclado balanceadas de la compañía italiana Fatar, que simula tocar en teclas de piano acústicas \r\nreales.\r\nConstruido con una elegante cubierta hecha en materiales resistentes a la humedad y cambios climáticos, incluye 3 pedales: Sustain, \r\nExpression, Soft; cubierta extraíble y soporte de partituras. Posee una amplificación interna que se adapta para entrenamiento en el \r\nhogar o actuaciones íntimas, así como 2 salidas de auriculares, entrada RCA para una conexión a un teléfono móvil o reproductor y poder \r\ntocar junto con tu música favorita. El motor de sonido del F-12 ofrece 13 simulaciones basadas en muestras de alta calidad de una variedad \r\nde ondas musicales, como pianos acústicos, órganos, órganos, cuerdas y más.', 3099, 'Pearl River', 'F-12', 'Pianos y Teclados', 'Piano Digital', 5),
+(1008, 'Teclado Alesis Harmony 54', '¡Aprender a tocar el teclado ahora es mucho más fácil! El teclado Alesis Harmony 54 combina 54 teclas estilo piano, \r\nparlantes incorporados, 300 sonidos incorporados con capas y modos divididos, 300 ritmos incorporados para tocar, 40 canciones \r\nde demostración, una entrada para auriculares que silencia automáticamente los parlantes para práctica privada, un atril para sostener \r\npartituras o una tableta, un adaptador de corriente e incluso un micrófono para cantar mientras tocas.', 350, 'Alesis', 'Harmony 54', 'Pianos y Teclados', 'Teclado', 5),
+(1009, 'Teclado Yamaha PSR-F52', '¿Qué mejor manera de iniciarse en la música que hacerlo con un teclado de Yamaha, una de las mejores marcas de instrumentos musicales? \r\nEl PSR-F52 te permite adquirir unos fundamentos sólidos para empezar a sentir la música en tus manos.\r\nSi estas comenzando este teclado te lo pone fácil gracias a los distintos estilos de acompañamiento y sonidos de muy varios instrumentos.', 560, 'Yamaha', 'PSR-F52', 'Pianos y Teclados', 'Teclado', 4),
+(1010, 'Sintetizador Yamaha MX49BKE Black', 'El MX49 BK incluye 1000 sonidos de la legendaria serie MOTIF además de una integración completa con ordenador y dispositivos iOS en un \r\nteclado ligero y compacto. ¡El MX49 BK incluye un driver audio/MIDI USB Class Compliant que además desbloquea la nueva app iOS FM Essential!', 3159, 'Yamaha', 'MX49BKE', 'Pianos y Teclados', 'Sintetizador', 6),
+(1011, 'Banqueta para piano NUX Negra', 'Banqueta NUX con acolchado premium de color negro.', 229, 'NUX', 'Banqueta', 'Pianos y Teclados', 'Accesorios de Teclado', 7),
+(1012, 'Batería Acústica Mapex Prodigy de 5 piezas - Royal Blue', 'Marca: Mapex Modelo: PDG5294FTCYB MKII Mapex da acceso al mundo de la batería con una gran calidad y estilo. La serie Prodigy, \r\nfabricada en tilo con acabado recubierto, es una batería de gran sonido, ideal para todo tipo de música. Los tambores están equipados \r\ncon la nueva tecnología Prodigy, modelo que utiliza un solo punto de contacto. * Serie: Prodigy * Color: Royal blue (CYB) * Material: Tilo \r\n* Medidas: Toms: 10, 12 y 16 pulgadas. Bombo: 22 pulgadas * Caja: 14 x 5,5 pulgadas * Platillos incluídos: Si incluye (hi hat de 14 pulgadas \r\ny crash de 16 pulgadas) * Número de piezas: 5 * Número de Atriles: 3 (Atril de Hi-Hat, atril de caja, atril de platillo recto)', 1899, 'Mapex', 'PDG5294FTCYB', 'Baterias', 'Bateria Acustica', 9),
+(1013, 'Batería Electrónica NUX DM-4S', 'La DM-4S está diseñada como una batería digital profesional.\r\nViene con 232 tipos de sonidos de batería realistas, una interfaz simple y una biblioteca de sonidos personalizable.\r\nCon disparadores sensibles a la velocidad, puede establecer parámetros para sus pads de batería y platillos, para garantizar la respuesta \r\nmás precisa y natural.', 3399, 'NUX', 'DM-4S', 'Baterias', 'Bateria Electrica', 11),
+(1014, 'Batería Electrónica Yamaha DD-75', 'DD-75 es un kit de batería digital con ocho pads sensibles al tacto y dos pedales. Tambores de alta calidad y una amplia variedad de \r\nsonidos de percusión de todo el mundo se mezclan con voces de orquesta para brindar una amplia gama de oportunidades musicales. El conector \r\nAUX IN le permite conectar un reproductor MP3 y tocar junto con su música favorita.', 1449, 'Yamaha', 'DD-75', 'Baterias', 'Bateria Electrica', 4),
+(1016, 'Banqueta para batería NUX negra', 'Banqueta NUX para batería color negro.', 285, 'NUX', 'Banqueta para batería NUX negra', 'Baterias', 'Hardware de bateria', 7),
+(1017, 'Pack de Platillos Zildjian Planet Z 14H, 16C, 20R', 'Su viaje de expresión musical comienza aquí con Planet Z, una línea de platillos hechos para bateristas que buscan un corte, tonos \r\nbrillantes y un sostenido más corto. Â¡Explora el Planeta Z y todo el universo de sonidos de Zildjian! El Planet Z Complete Pack le ofrece \r\ntodos los tamaños estándar en un paquete conveniente. Enfréntate a cualquier estilo de música con un par de hihats de 14\" de tamaño completo, \r\nun platillo crash de 16\" y un ride de 20\" de tamaño completo.', 959, 'Zildjian', 'Planet Z', 'Baterias', 'Platillos', 5),
+(1018, 'Timbales Prestige Latin Percusion LP1415-B Dorado', 'LP Prestige Timbales representan lo último en innovación de timbales. Están equipados con un sistema de ajuste superior para ajustes \r\nfáciles y rápidos. Los tornillos de sujeción empotrados permanecen debajo de la superficie de tocado y los aros mejorados y la nueva \r\ncolocación de las costillas mejorarán los disparos del aro y la cáscara.', 2289, 'Latin Percusion', 'LP1415-B', 'Percusion', 'Timbales', 5),
+(1019, 'Timbales Latin Percusion E-Class LP1415-EC 14x15 Chrome Black-Nickel', 'Considerada durante mucho tiempo la Primera Familia del Jazz Latino, los Escovedo son una fuerza a tener en cuenta. Dirigido por el \r\npatriarca Pete: Juan, Peter Michael y Sheila E individualmente han tenido carreras legendarias tocando con un quién es quién de la música, \r\nasí como carreras en solitario que encabezan las listas, pero cuando la familia se une, es realmente algo especial. La colección de productos \r\nE-Class representa el sonido único de los Escovedo y su estilo glamoroso. - 14 \"y 15\" de diámetro, carcasas de 6-1/2\" de profundidad - \r\nTop-Tuning patentado para ajustes sobre la marcha - Carcasas de acero cromado con herrajes enchapados en níquel negro - Soporte de alta \r\nresistencia, totalmente ajustable en altura con una funda anti-sonajero y basculante de fundición a presión - Incluye soporte de cencerro, \r\npalos de timbal y llave de afinación', 2855, 'Latin Percusion', 'LP1415-EC', 'Percusion', 'Timbales', 7),
+(1020, 'Mini conga Latin Percusion Karl Perazzo Serie LPM198-KP', 'En representación de \"La Familia\", Karl Perazzo diseñó este gráfico de Sugar Skull para rendir homenaje a generaciones de seres queridos. \r\nEl diseño exclusivo se aplica minuciosamente a una mini réplica de Conga de LP con una cabeza totalmente ajustable con herrajes cromados.', 269, 'Latin Percusion', 'LPM198-KP', 'Percusion', 'Congas, Tumbas, Quintos', 5),
+(1021, 'Mini conga Latin Percusion Santana Africa Speaks LPM197-SAS', 'Latin Percussion se enorgullece de la larga relación de una década con Carlos Santana y se honra en ofrecer una colección de mini congas \r\nconmemorativas. Esta conga de 11\" de altura totalmente ajustable cuenta con un casco de roble siam, un parche de cuero sin curtir de 4-1/2\" \r\ny un aro mini Comfort Curve con un acabado de laca amarilla vibrante y un arte gráfico increíblemente intrincado del álbum Santana Africa \r\nSpeaks.\r\nTambién están disponibles otras mini congas gráficas, incluidas Santana IV y Abraxas.\r\nCon tres versiones de ilustraciones de álbumes de Santana disponibles, puedes coleccionar todo el conjunto.', 365, 'Latin Percusion', 'LPM197-SAS', 'Percusion', 'Congas, Tumbas, Quintos', 2),
+(1022, 'Bongo City Latin Percusion LP601NY-VSB Vintage Sunburst', 'Bongos de madera con acabado satinado con cabezales de cuero crudo de 6 \"y 7\"', 479, 'Latin Percusion', 'LP601NY-VSB', 'Percusion', 'Bongos', 3),
+(1023, 'Shaker Latin Percusion de huevo Serie LP LPR-001BD48-I', 'Este diseño proporciona rápido, delicado y sensible, sonidos.Construido de plástico duradero, fácil cuidado y con relleno con imagen de \r\nacero no tóxico para los jugadores de todas las edades', 12, 'Latin Percusion', 'LPR-001BD48-I', 'Percusion', 'Percusion Menor', 4),
+(1024, 'Flauta Dulce Moon TRC-56-G sistema germánico', 'Flauta dulce Moon TRC-56/G sistema germánico', 9, 'Moon', 'TRC-56-G', 'Banda & Orquesta', 'Instrumentos de Banda y Orquesta', 1),
+(1025, 'Flauta Sopranino Yamaha Alemana YRN-21', 'Este sopranino tiene un tono brillante y hermoso. Juega con un tono sonoro y uniforme en todos los registros con un rico tono expresivo ... \r\nfácil de tocar con una entonación precisa y uniforme para jugadores de todos los niveles. El sistema de digitación alemán lo hace fácil para \r\nlos dedos jóvenes. Plástico de resina ABS duradero, un plástico muy duradero ideal para grabadoras de estudiantes. La construcción de dos \r\npiezas de esta flauta facilita la sintonización y la limpieza.', 42, 'Yamaha', 'YRN-21', 'Banda & Orquesta', 'Instrumentos de Banda y Orquesta', 4),
+(1026, 'Boquilla Yamaha para clarinete CL-3C', 'Las boquillas de la serie Standard de Yamaha están hechas de resina fenólica (plástico) de alta calidad y presentan un diseño basado en \r\nla serie Custom de grado superior. Son extremadamente consistentes en especificaciones y calidad de tocado y ofrecen una excelente relación \r\ncalidad-precio. El aspecto de esta serie es ligeramente más corto que el de la serie Custom, lo que los hace más fáciles de tocar y, por lo \r\ntanto, más fáciles para que los principiantes logren un sonido más rico.', 115, 'Yamaha', 'CL-3C', 'Banda & Orquesta', 'Boquillas', 5),
+(1027, 'Boquilla Yamaha Para Saxofón Tenor Estándar TS-5C', 'Boquilla de saxofón tenor serie estándar de Yamaha, modelo 5C, abertura de punta de 1.80 mm, longitud de cara de 24.0 mm. Las boquillas de \r\nla serie Standard de Yamaha están diseñadas para proporcionar a los estudiantes y aficionados una opción de plástico moldeado asequible sin \r\nsacrificar la precisión. Cada modelo estándar tiene la consistencia que ha convertido a Yamaha en el líder en instrumentos y accesorios de \r\nviento para estudiantes.', 125, 'Yamaha', 'TS-5C', 'Banda & Orquesta', 'Boquillas', 7),
+(1028, 'Caña Rico Royal para Clarinete BB de 2.5', 'Ideal para estudiantes. Diseñado para facilitar el juego. Precio asequible para educadores y padres. Disponible para toda la gama de \r\nClarinets y Saxofones. Cuenta con un corte archivado para una mayor claridad.', 7, 'Rico Royal', 'Caña', 'Banda & Orquesta', 'Accesorios de Banda y Orquesta', 1),
+(1029, 'Cepillo de tudel de saxofón Yamaha', 'Se utiliza con todos los tipos de saxofón (barítono, tenor, y alto). Elimina la humedad de tudel. Conveniente para almacenar y \r\ntransportar en el estuche del instrumento', 36, 'Yamaha', 'Cepillo', 'Banda & Orquesta', 'Accesorios de Banda y Orquesta', 2),
+(1030, 'Micrófono Shure SV100', 'El micrófono de voz cardioide reduce la retroalimentación y ofrece una excelente calidad de sonido, e incluye el micrófono, un cable \r\nduradero con un enchufe de 6,3mm para su uso con sistemas de grabación doméstica, portátil o karaoke.', 129, 'Shure', 'SV100', 'Audio Profesional', 'Microfono', 1),
+(1031, 'Micrófono Shure SM7B', 'Micrófono de estudio cardioide que ofrece una reproducción de audio suave y cálida en aplicaciones de captación cercana, tanto vocales \r\ncomo de estudio Dispone de una amplia respuesta en frecuencia, supresión controlada de graves, realce de presencia de frecuencias medias y \r\naislamiento antigolpes interno por suspensión de aire. ESPECIFICACIONES:Peso:765 g-Altura x Ancho x Fondo:198.7 — 117.0 — 96.0 mm-Respuesta \r\nen frecuencia:50 Hz 20 kHz-Respuesta en frecuencia:Ajustable-Sensibilidad:-59.00 dBV/Pa 1.12 mV/Pa-Tipo de transductor:Dinámico-Patrón \r\npolar:Cardioide-Filtro de corte de graves conmutable:Sí-Conectores:XLR 3 pines-Atenuador:No-Cápsula intercambiable:No-Función principal: \r\nGrabación-Auriculares in-ear:No-Cápsula:Fija', 2419, 'Shure', 'SM7B', 'Audio Profesional', 'Microfono', 15),
+(1032, 'Monitor de Studio Yamaha HS8 Blanco', 'Monitor de estudio de campo cercano de 2 vías, biamplificado, bass-reflex, con cono de graves de 8 pulgadas y unidad de agudos de cúpula \r\nblanda de 1 pulgada. Dispone de puntos de montaje sobre cuatro superficies. ESPECIFICACIONES:Accionado:si-Configuración de \r\npotencia:biamplificado-Tamaño del controlador LF:8 «woofer-Tamaño del controlador de HF:1 «tweeter de cúpula-LF Driver Power \r\nAmp:75W-Amplificador de Potencia de Conductor HF:45W-Potencia total:120W-Rango de frecuencia:38Hz-30kHz-Frecuencia de \r\ncruce:2 kHz-Características:ajustes de control de la habitación, interruptor de ajuste alto-Tipos de entrada:1 x XLR, 1 x 1/4 «-Tipo de \r\ncaja:Trasero con puerto-Altura:15.4 «-Ancho:9.8 «-Profundidad:13.1 «-Peso:22.5 lbs.-Número de pieza del fabricante:HS8W', 1999, 'Yamaha', 'HS8', 'Audio Profesional', 'Monitores', 1),
+(1033, 'Monitor Focal Alpha 50 Evo', 'El Alpha 50 Evo está equipado con un tweeter de 25 mm (1\") en aluminio y un woofer de 13 cm (5\") con membrana Slatefiber, desarrollada y \r\nfabricada en los talleres de Focal en Francia. Este monitor se caracteriza por su dinámica, por la neutralidad de su equilibrio tonal y por \r\nla excelente coherencia sonora que garantiza en cualquier entorno de escucha.\r\nEn materia de funcionalidad, una entrada jack TRS de 6,35 mm se añade a las entradas analógicas XLR y RCA. También cuenta con un modo de \r\npuesta en espera automático desactivable y con insertos para fijarlo en paredes o techos. La gran capacidad de corriente que ofrecen sus 2 \r\namplificadores favorece el control total de la dinámica de la señal y permite alcanzar altos niveles sonoros sin distorsión.\r\nSu diseño bass-reflex, sus contornos redondeados y sus laterales modernos y robustos son otros de los puntos fuertes del Alpha 50 Evo, al \r\nservicio de una integración acústica y estética óptima en cualquier lugar.', 1355, 'Focal', 'Alpha 50 Evo', 'Audio Profesional', 'Monitores', 4),
+(1034, 'Mezclador Yamaha MG16', 'Mesa de mezclas de 16 canales: máximo 10 entradas de micro/16 de línea (8 mono + 4 estéreo); 4 buses de grupo + 1 bus estéreo; 4 envíos \r\nAUX.', 2195, 'Yamaha', 'MG16', 'Audio Profesional', 'Consolas', 4),
+(1035, 'Audífono Shure SRH240A', 'Auriculares profesionales de diseño cerrado que evitan el ruido de fondo y ofrecen una potente respuesta en graves. \r\nESPECIFICACIONES:Peso:-238 g-Transductor:-40 mm-Impedancia:-38 Sensibilidad:-107 dB/mW-Máxima potencia de entrada:-500 mW-Respuesta en \r\nfrecuencia:-20 Hz 20 kHz-Longitud de cable:-200 cm-Cascos con 90° de giro:-No-Tipo de cable:-Detachable Straight-Salida de cable:-Dual \r\nSided-Tipo de conexión:-Cable-Conector:-5 Mm Stereo Jack-Diseño:', 339, 'Shure', 'SRH240A', 'Audio Profesional', 'Audifonos', 1),
+(1037, 'Batería Electrónica Yamaha DTX6K2-X', 'DTX6KX series, nuevo kit de bactería eléctrica, reemplazará al DTX5x2k series con funciones absolutamente atractivas para los bateristas.\r\nEl módulo DTX-PRO incluye sonidos de batería naturales con un ambiente real, interpretados por los mejores bateristas de estudio y grabados \r\nen estudios reconocidos. ', 8649, 'Yamaha', 'DTX6K2-X', 'Baterias', 'Bateria Electrica', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `idUsuario` int(11) NOT NULL,
+  `nombre` varchar(45) NOT NULL,
+  `apellido` varchar(45) NOT NULL,
+  `correo` varchar(45) NOT NULL,
+  `contraseña` varchar(45) NOT NULL,
+  `tipo` varchar(45) NOT NULL,
+  `activo` varchar(60) NOT NULL,
+  `ip` varchar(150) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `usuarios`
+--
+
+INSERT INTO `usuarios` (`idUsuario`, `nombre`, `apellido`, `correo`, `contraseña`, `tipo`, `activo`, `ip`) VALUES
+(1, '-', '-', '-', '-', 'No Registrado', 'No Activo', '::1'),
+(2, 'diego', 'lobon', 'diegolima488@gmail.com', '1234', 'Registrado', 'No Activo', '2'),
+(28, 'Matias', 'Herrera', 'matias@gmail.com', '1234', 'Registrado', 'No Activo', 'Matias');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ventas`
+--
+
+CREATE TABLE `ventas` (
+  `idVenta` int(11) NOT NULL,
+  `idVentaMP` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `estado` varchar(100) NOT NULL,
+  `tipoPago` varchar(100) NOT NULL,
+  `idOrdenComercial` int(11) NOT NULL,
+  `idProducto` int(11) NOT NULL,
+  `CantidadProducto` int(11) NOT NULL,
+  `total` int(11) NOT NULL,
+  `nombre` varchar(200) NOT NULL,
+  `apellido` varchar(200) NOT NULL,
+  `direccion` varchar(200) NOT NULL,
+  `apartamento` varchar(200) NOT NULL,
+  `distrito` varchar(200) NOT NULL,
+  `region` varchar(200) NOT NULL,
+  `celular` varchar(200) NOT NULL,
+  `correo` varchar(200) NOT NULL,
+  `ip` varchar(200) NOT NULL,
+  `metodo` varchar(200) NOT NULL,
+  `dni` varchar(200) NOT NULL,
+  `estadoEntrega` varchar(150) NOT NULL,
+  `fecha` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `ventas`
+--
+
+INSERT INTO `ventas` (`idVenta`, `idVentaMP`, `idUsuario`, `estado`, `tipoPago`, `idOrdenComercial`, `idProducto`, `CantidadProducto`, `total`, `nombre`, `apellido`, `direccion`, `apartamento`, `distrito`, `region`, `celular`, `correo`, `ip`, `metodo`, `dni`, `estadoEntrega`, `fecha`) VALUES
+(1, 1310763239, 2, 'approved', 'credit_card', 2147483647, 1, 1, 510, 'Marcos', 'Herrera', 'Angeles', 'Ilo', 'Ilo', 'Moquegua', '948514256', 'diegolima488@gmail.com', '2', 'Envio a domicilio, pago Mercado Pago', '78569814', 'En Proceso', '2022-11-13 19:14:11'),
+(2, 1310763239, 2, 'approved', 'credit_card', 2147483647, 1006, 2, 3798, 'Marcos', 'Herrera', 'Angeles', 'Ilo', 'Ilo', 'Moquegua', '948514256', 'diegolima488@gmail.com', '2', 'Envio a domicilio, pago Mercado Pago', '78569814', 'En Proceso', '2022-11-13 19:14:11'),
+(3, 1311221421, 1, 'approved', 'credit_card', 2147483647, 1006, 1, 1899, 'diego', 'lobon', 'Brisas V Mz63 Lt4', 'Ilo', 'Ilo', 'Moquegua', '946056580', 'diegolima488@gmail.com', '::1', 'Envio a domicilio, pago Mercado Pago', '74146563', 'En Proceso', '2022-12-07 12:29:47'),
+(4, 1311233339, 1, 'approved', 'credit_card', 2147483647, 1006, 2, 3798, 'Marcos', 'Herrera', 'Angeles', 'Ilo', 'Ilo', 'Moquegua', '948514256', 'diegolima488@gmail.com', '::1', 'Envio a domicilio, pago Mercado Pago', '78569814', 'En Proceso', '2022-12-08 00:28:56'),
+(5, 1311233339, 1, 'approved', 'credit_card', 2147483647, 1018, 2, 4578, 'Marcos', 'Herrera', 'Angeles', 'Ilo', 'Ilo', 'Moquegua', '948514256', 'diegolima488@gmail.com', '::1', 'Envio a domicilio, pago Mercado Pago', '78569814', 'En Proceso', '2022-12-08 00:28:56'),
+(6, 1311341783, 1, 'approved', 'credit_card', 2147483647, 1006, 3, 5697, 'Diego', 'Lobón', 'Brisas V Mz63 Lt4', 'Ilo', 'Ilo', 'Moquegua', '946056580', 'diegolima488@gmail.com', '::1', 'Envio a domicilio, pago Mercado Pago', '74146564', 'En Proceso', '2022-12-12 19:18:10'),
+(7, 1311341783, 1, 'approved', 'credit_card', 2147483647, 1012, 2, 3798, 'Diego', 'Lobón', 'Brisas V Mz63 Lt4', 'Ilo', 'Ilo', 'Moquegua', '946056580', 'diegolima488@gmail.com', '::1', 'Envio a domicilio, pago Mercado Pago', '74146564', 'En Proceso', '2022-12-12 19:18:10'),
+(8, 1311341783, 1, 'approved', 'credit_card', 2147483647, 1, 2, 1020, 'Diego', 'Lobón', 'Brisas V Mz63 Lt4', 'Ilo', 'Ilo', 'Moquegua', '946056580', 'diegolima488@gmail.com', '::1', 'Envio a domicilio, pago Mercado Pago', '74146564', 'En Proceso', '2022-12-12 19:18:10'),
+(9, 1311341807, 2, 'approved', 'credit_card', 2147483647, 1006, 1, 1899, 'Juan', 'Flores', 'Angeles', 'Ilo', 'Ilo', 'Moquegua', '948514256', 'diegolima488@gmail.com', '2', 'Envio a domicilio, pago Mercado Pago', '78569814', 'En Proceso', '2022-12-12 19:21:00');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `carrito_de_compras`
+--
+ALTER TABLE `carrito_de_compras`
+  ADD PRIMARY KEY (`idCarrito`),
+  ADD KEY `FK_Carrito_Productos` (`idProducto`),
+  ADD KEY `FK_Carrito_Usuario` (`idUsuario`);
+
+--
+-- Indexes for table `informacionpago`
+--
+ALTER TABLE `informacionpago`
+  ADD PRIMARY KEY (`idInformacionPago`);
+
+--
+-- Indexes for table `pedidostodos`
+--
+ALTER TABLE `pedidostodos`
+  ADD PRIMARY KEY (`idPedidosTodos`),
+  ADD KEY `FK_pedidosTodos_Carrito` (`idCarrito`);
+
+--
+-- Indexes for table `productos`
+--
+ALTER TABLE `productos`
+  ADD PRIMARY KEY (`idProducto`);
+
+--
+-- Indexes for table `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`idUsuario`);
+
+--
+-- Indexes for table `ventas`
+--
+ALTER TABLE `ventas`
+  ADD PRIMARY KEY (`idVenta`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `carrito_de_compras`
+--
+ALTER TABLE `carrito_de_compras`
+  MODIFY `idCarrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+
+--
+-- AUTO_INCREMENT for table `informacionpago`
+--
+ALTER TABLE `informacionpago`
+  MODIFY `idInformacionPago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
+--
+-- AUTO_INCREMENT for table `pedidostodos`
+--
+ALTER TABLE `pedidostodos`
+  MODIFY `idPedidosTodos` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+--
+-- AUTO_INCREMENT for table `ventas`
+--
+ALTER TABLE `ventas`
+  MODIFY `idVenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `carrito_de_compras`
+--
+ALTER TABLE `carrito_de_compras`
+  ADD CONSTRAINT `FK_Carrito_Productos` FOREIGN KEY (`idProducto`) REFERENCES `productos` (`idProducto`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_Carrito_Usuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`idUsuario`);
+
+--
+-- Constraints for table `pedidostodos`
+--
+ALTER TABLE `pedidostodos`
+  ADD CONSTRAINT `FK_pedidosTodos_Carrito` FOREIGN KEY (`idCarrito`) REFERENCES `carrito_de_compras` (`idCarrito`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
